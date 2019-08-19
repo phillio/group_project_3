@@ -27,8 +27,6 @@ app.get('/', async (req, res) => {
   }
 })
 
-// /user/:id/folder/:id/note/:id
-
 
 // get all folders-- WORKS
 app.get('/user/:user_id', async (req, res) => {
@@ -42,11 +40,30 @@ app.get('/user/:user_id', async (req, res) => {
 })
 
 // gets all notes from a specific folder-- WORKS
-app.get('/user/:id/folders/:folder_id', async (req, res) => {
+app.get('/user/:user_id/folders/:folder_id', async (req, res) => {
   try {
-    const userId = 
+    const userId = req.params.user_id
+    const user = await User.findByPk(req.params.user_id)
+    const folder = await Folder.findByPk(req.params.folder_id)
+    if (user) {
+      if (folder.dataValues.userId == userId) {
+        const notes = await Note.findAll({
+          where: {
+            folderId: req.params.folder_id
+          }
+        })
+        res.send(notes)
+      }
+      else {
+        res.status(400).json({
+          message: "folder not found"
+        })
+      }
+    }
     else {
-
+      res.status(400).json({
+        message: "user not found"
+      })
     }
   }
   catch (error) {
@@ -54,12 +71,13 @@ app.get('/user/:id/folders/:folder_id', async (req, res) => {
   }
 })
 
-// creates one folder -- works 
-app.post('/user/:user_id', async (req, res) => {
+// creates one folder -- works andre did it
+app.post('/user/:user_id/folders', async (req, res) => {
   try {
     const user = await User.findByPk(req.params.user_id)
     if (user) {
       const newFolder = await Folder.create(req.body)
+      // console.log(newFolder, user)
       await newFolder.setUser(user)
       res.send(newFolder)
     }
@@ -73,11 +91,30 @@ app.post('/user/:user_id', async (req, res) => {
   }
 })
 
-// creates one note need work
-app.post('/user/folders/:folder_id/notes/:note_id', async (req, res) => {
+// creates one note -- works
+app.post('/user/:user_id/folders/:folder_id/notes', async (req, res) => {
   try {
-    const newNote = await Note.create(req.body)
-    res.send(newNote)
+      const userId = req.params.user_id
+      const user = await User.findByPk(req.params.user_id)
+      const folder = await Folder.findByPk(req.params.folder_id)
+      if (user) {
+        if (folder.dataValues.userId == userId) {
+          const newNote = await Note.create(req.body)
+          await newNote.setFolder(folder)
+          await newNote.setUser(user)
+          res.send(newNote)
+        }
+        else {
+          res.status(400).json({
+            message: "folder not found"
+          })
+        }
+      }
+    else {
+      res.status(400).json({
+        message: "user not found"
+      })
+    }
   } catch (error) {
     throw error
   }
@@ -96,9 +133,18 @@ app.put('/user/folders/:folder_id/notes/:note_id', async (req, res) => {
 })
 
 // delete note
-app.delete('/user/folders/:folder_id/notes/:note_id', async (req, res) => {
+app.delete('/user/:user_id/folders/:folder_id/notes/:note_id', async (req, res) => {
+  let userId = await User.findByPk(req.params.user_id)
+  let folderId = await Folder.findByPk(req.params.folder_id)
+  let noteId = await Note.findByPk(req.params.note_id)
+
+  
+  
   try {
-    await Note.destroy()
+    await Note.destroy({
+      
+
+    })
   } catch (error) {
     throw error
   }
