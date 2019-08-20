@@ -24,10 +24,13 @@ User.beforeCreate(async (user, options) => {
     user.password = hashedPassword
 })
 
+// phil added user.hasmany(note) for test
 User.hasMany(Folder)
+// User.hasMany(Note)
 Folder.hasMany(Note)
 Folder.belongsTo(User)
 Note.belongsTo(Folder)
+Note.belongsTo(User)
 
 module.exports = {
     db,
