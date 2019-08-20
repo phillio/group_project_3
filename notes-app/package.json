@@ -4,11 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1", 
-    "client": "cd client && npm start", 
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "client": "cd client && npm start",
     "dev": "concurrently --kill-others-on-fail \"npm run start\" \"npm run client\"",
     "db:init": "dropdb --if-exists notes_db && createdb notes_db",
-    "db:reset": "node ./scripts/resetDb.js", 
+    "db:reset": "node ./scripts/resetDb.js",
     "db:seed": "node ./scripts/seedDb.js",
     "start": "nodemon server.js"
   },

@@ -7,8 +7,6 @@ const jwt = require('jsonwebtoken')
 const JWTStrategy = require('passport-jwt').Strategy
 const ExtractJWT = require('passport-jwt').ExtractJwt
 
-// const SECRET = 'bumble'
-
 const jwtSign = (payload) => {
     return jwt.sign(payload, process.env.SECRET)
 }
