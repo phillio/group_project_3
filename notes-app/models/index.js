@@ -20,9 +20,9 @@ User.beforeCreate(async (user, options) => {
         user.password,
         Number(process.env.SALT_ROUNDS)
     )
-
     user.password = hashedPassword
-})
+  })
+  
 
 // phil added user.hasmany(note) for test
 User.hasMany(Folder)
