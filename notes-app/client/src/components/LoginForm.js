@@ -1,76 +1,85 @@
-import React from 'react'
-// import { Redirect } from 'react-router-dom'
+import React, { Component } from 'react'
+import { Redirect } from 'react-router-dom'
 
-class LoginForm extends React.Component {
-    constructor(props) {
+class LoginForm extends Component {
+  constructor (props) {
     super(props)
+
     this.state = {
       email: '',
-      password: ''
+      password: '',
+      showError: false
     }
   }
 
   handleSubmitForm = async (event) => {
     event.preventDefault()
+
     const { email, password } = this.state
     const { handleLogin } = this.props
 
+    this.setState({ showError: false })
+
     try {
-      await handleLogin({ email, password })
-    }
-    catch (error) {
-      this.setState(state => {
-        return { showError: true }
-      })
-      throw error
+      await handleLogin({ email, password})
+    } catch (e) {
+      this.setState({ showError: true })
     }
   }
+
   handleTextInput = (event) => {
-    const { name, value } = event.target
+    const fieldName = event.target.name
+    const value = event.target.value
 
     this.setState(state => {
-      return { [name]: value }
+      return { [fieldName]: value }
     })
   }
-  render() {
-    // const { isSignedIn } = this.props
-    // const { showError } = this.state 
 
-    // let errorMessage 
+  render () {
+    const { showError } = this.state
+    const { isSignedIn } = this.props
 
-    // if (showError) {
-    //     errorMessage = (
-    //         <div className='error-message'>
-    //             <span>An Error occured, please try again</span>
-    //         </div>
-    //     )
-    // }
-    // if (isSignedIn) {
-    //     return <Redirect to="/dashboard" />
-    // }
+    let errorMessage
+
+    if (showError) {
+      errorMessage = (
+        <div className='errorMessage'>
+          <span>
+            An error occurred, please ensure your credentials are correct
+          </span>
+        </div>
+      )
+    }
+
+    if (isSignedIn) {
+      return <Redirect to='/dashboard' />
+    }
 
     return (
       <div>
-        {/* {errorMessage} */}
-        <form className="form" onSubmit={this.handleSubmitForm}>
+        { errorMessage }
+        <form className='form' onSubmit={this.handleSubmitForm}>
           <div>
             <label>Email</label>
             <input
-              type="text"
-              name="email"
+              type='text'
+              name='email'
               onChange={this.handleTextInput}
               value={this.state.email}
             />
           </div>
+
           <div>
             <label>Password</label>
             <input
-              type="password"
-              name="password"
+              type='password'
+              name='password'
               onChange={this.handleTextInput}
               value={this.state.password}
             />
           </div>
+
           <button>Login</button>
         </form>
       </div>
@@ -78,4 +87,4 @@ class LoginForm extends React.Component {
   }
 }
 
-export default LoginForm;
+export default LoginForm
