@@ -3,7 +3,6 @@ import Home from './Home'
 
 function Main(){
   <div>
-    Main
     <Home />
   </div>
 }
