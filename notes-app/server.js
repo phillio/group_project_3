@@ -94,22 +94,22 @@ app.post('/user/:user_id/folders', async (req, res) => {
 // creates one note -- works
 app.post('/user/:user_id/folders/:folder_id/notes', async (req, res) => {
   try {
-      const userId = req.params.user_id
-      const user = await User.findByPk(req.params.user_id)
-      const folder = await Folder.findByPk(req.params.folder_id)
-      if (user) {
-        if (folder.dataValues.userId == userId) {
-          const newNote = await Note.create(req.body)
-          await newNote.setFolder(folder)
-          await newNote.setUser(user)
-          res.send(newNote)
-        }
-        else {
-          res.status(400).json({
-            message: "folder not found"
-          })
-        }
+    const userId = req.params.user_id
+    const user = await User.findByPk(req.params.user_id)
+    const folder = await Folder.findByPk(req.params.folder_id)
+    if (user) {
+      if (folder.dataValues.userId == userId) {
+        const newNote = await Note.create(req.body)
+        await newNote.setFolder(folder)
+        await newNote.setUser(user)
+        res.send(newNote)
       }
+      else {
+        res.status(400).json({
+          message: "folder not found"
+        })
+      }
+    }
     else {
       res.status(400).json({
         message: "user not found"
@@ -120,42 +120,145 @@ app.post('/user/:user_id/folders/:folder_id/notes', async (req, res) => {
   }
 })
 
-// edit note need work
-app.put('/user/folders/:folder_id/notes/:note_id', async (req, res) => {
+
+// get user note -- works
+app.get('/user/:user_id/folders/:folder_id/notes/:note_id', async (req, res) => {
   try {
-    const updateNotes = await Note.update(
-      { name: req.body.name },
-      { where: { id: req.params.id } }
-    )
+    const userId = req.params.user_id
+    const folderId = req.params.folder_id
+    const noteId = req.params.note_id
+
+    const user = await User.findByPk(userId)
+    const folder = await Folder.findByPk(folderId)
+    const note = await Note.findByPk(noteId)
+
+    if (user) {
+      if (folder) {
+        if (note) {
+          if (userId == folder.dataValues.userId && userId == note.dataValues.userId) {
+            res.send(note)
+          }
+        }
+        else {
+          res.status(400).json({
+            message: "note not found"
+          })
+        }
+
+      }
+      else {
+        res.status(400).json({
+          message: "folder not found"
+        })
+      }
+    }
+    else {
+      res.status(400).json({
+        message: "user not found"
+      })
+    }
+  }
+  catch (error) {
+    throw error
+  }
+})
+
+// edit note -- works
+app.put('/user/:user_id/folders/:folder_id/notes/:note_id', async (req, res) => {
+  try {
+    const userId = req.params.user_id
+    const folderId = req.params.folder_id
+    const noteId = req.params.note_id
+
+    const user = await User.findByPk(userId)
+    const folder = await Folder.findByPk(folderId)
+    const note = await Note.findByPk(noteId)
+
+    if (user) {
+      if (folder) {
+        if (note) {
+          if (userId == folder.dataValues.userId && userId == note.dataValues.userId) {
+            console.log('old note', note.dataValues)
+            await Note.update(
+              {
+                title: req.body.title,
+                content: req.body.content
+              },
+              {
+                where: { id: noteId }
+              }
+            )
+            res.json({ message: `Note with id${noteId} was updated` })
+            const newNote = await Note.findByPk(noteId)
+            console.log('new note', newNote.dataValues)
+          }
+        }
+      }
+    }
+
   } catch (error) {
     throw error
   }
 })
 
-// delete note
+// delete note-- works
 app.delete('/user/:user_id/folders/:folder_id/notes/:note_id', async (req, res) => {
-  let userId = await User.findByPk(req.params.user_id)
-  let folderId = await Folder.findByPk(req.params.folder_id)
-  let noteId = await Note.findByPk(req.params.note_id)
 
-  
-  
   try {
-    await Note.destroy({
-      
+    const userId = req.params.user_id
+    const folderId = req.params.folder_id
+    const noteId = req.params.note_id
 
-    })
+    const user = await User.findByPk(userId)
+    const folder = await Folder.findByPk(folderId)
+    const note = await Note.findByPk(noteId)
+
+    if (user) {
+      if (folder) {
+        if (note) {
+          if (userId == folder.dataValues.userId && userId == note.dataValues.userId) {
+            await Note.destroy({
+              where: { id: noteId }
+            })
+            res.json(`Note with id of ${noteId} has been deleted`)
+          }
+        }
+      }
+    }
   } catch (error) {
     throw error
   }
 })
 
-app.delete('/user/folders/:folder_id', async (req, res) => {
+// delete folder-- works
+app.delete('/user/:user_id/folders/:folder_id', async (req, res) => {
   try {
-    await Folder.destroy()
+    const userId = req.params.user_id
+    const folderId = req.params.folder_id
+
+    const user = await Folder.findByPk(userId)
+    const folder = await Folder.findByPk(folderId)
+    if (user) {
+      if (folder) {
+        if (userId == folder.dataValues.userId) {
+          console.log(folder.dataValues)
+          await Folder.destroy({
+            where: { id: folderId }
+          })
+          res.json(`Folder with id of ${folderId} has been deleted`)
+        }
+      }
+    }
+    else {
+      res.status(400).json({
+        message: "folder was not deleted"
+      })
+    }
   } catch (error) {
+    console.log('this error came about from deleting folders')
     throw error
   }
 })
+
 
 app.listen(PORT, () => console.log(`Up and running on Port ${PORT}`))
