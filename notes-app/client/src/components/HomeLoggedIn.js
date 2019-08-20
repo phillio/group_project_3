@@ -1,5 +1,5 @@
 import React from 'react'
-​
+
 function HomeLoggedIn() {
     return (
         <div>
@@ -7,5 +7,6 @@ function HomeLoggedIn() {
         </div>
     )
 }
-​
+
 export default HomeLoggedIn
+
